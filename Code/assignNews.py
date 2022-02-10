@@ -19,7 +19,7 @@ def assign(id_, newsFiles, id2name, stockNewsCount):
     for csvFile in newsFiles: # 600 days of news file
         # csvFile: sina-2020-10-10.csv
         if csvFile[-3:] != 'csv':
-            continue;
+            continue
         date = csvFile[-14:-4] # 2020-10-10
 
         # open file
@@ -69,51 +69,51 @@ newsFiles = [dataPath + '/generalNews/' + csvFile for csvFile in os.listdir(data
             [dataPath + '/ycjNews/' + csvFile for csvFile in os.listdir(dataPath + '/ycjNews')] + \
             [dataPath + '/wsNews/' + csvFile for csvFile in os.listdir(dataPath + '/wsNews')]
 
+if __name__ == '__main__':
+    # start
+    # creating directories
+    createDir(id2name, outputPath)
 
-# start 
-# creating directories
-createDir(id2name, outputPath)
+    # initializing variables for parallel processing
+    id_list = list(id2name.keys())
+    nb_process = int(mp.cpu_count()) - 1
+    #nb_process = 7
+    l = list(np.array_split(id_list, nb_process))
+    l = [x.tolist() for x in l]
 
-# initializing variables for parallel processing
-id_list = list(id2name.keys())
-nb_process = int(mp.cpu_count()) - 1
-#nb_process = 7
-l = list(np.array_split(id_list, nb_process))
-l = [x.tolist() for x in l]
+    stockNewsCount = mp.Manager().dict() # count how many news on a certain date for a certain stock
 
-stockNewsCount = mp.Manager().dict() # count how many news on a certain date for a certain stock
+    process_list = [mp.Process(target=process, args = (idList,stockNewsCount)) for idList in l]
 
-process_list = [mp.Process(target=process, args = (idList,stockNewsCount)) for idList in l]
+    time1=time.time()
+    for p in process_list:
+        p.start()
 
-time1=time.time()
-for p in process_list:
-    p.start()
+    for p in process_list:
+        p.join()
 
-for p in process_list:
-    p.join()
+    time2=time.time()
+    print('Cost time: ' + str(time2 - time1) + 's')
+    # Cost time: 1346.320482969284s
+    # for 300 stocks and 4000 news files
+    ######################
+    # some analysis of the assign result
 
-time2=time.time()
-print('Cost time: ' + str(time2 - time1) + 's')
-# Cost time: 1346.320482969284s
-# for 300 stocks and 4000 news files
-######################
-# some analysis of the assign result
+    stockNewsCount = dict(stockNewsCount)
+    cnt = 0
+    for key in stockNewsCount.keys():
+        cnt += np.sum(list(stockNewsCount[key].values()))
+    print("Altogether {} news for 300 stocks".format(cnt))
+    # Altogether 163251 news for 300 stocks
 
-stockNewsCount = dict(stockNewsCount)
-cnt = 0
-for key in stockNewsCount.keys():
-    cnt += np.sum(list(stockNewsCount[key].values()))
-print("Altogether {} news for 300 stocks".format(cnt))
-# Altogether 163251 news for 300 stocks
+    print("Averagely {} news for each stock".format(cnt/300))
+    # Averagely 544.17 news for each stock
 
-print("Averagely {} news for each stock".format(cnt/300))
-# Averagely 544.17 news for each stock
-
-#count	300.000000
-#mean	544.170000
-#std	1145.446034
-#min	48.000000
-#25%	144.750000
-#50%	260.500000
-#75%	542.750000
-#max	15046.000000
+    #count	300.000000
+    #mean	544.170000
+    #std	1145.446034
+    #min	48.000000
+    #25%	144.750000
+    #50%	260.500000
+    #75%	542.750000
+    #max	15046.000000
