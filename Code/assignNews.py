@@ -1,9 +1,14 @@
+import datetime
 import multiprocessing as mp
-import pandas as pd
-import os
 import numpy as np
+import os
+import pandas as pd
 import time
-from joblib import Parallel,delayed
+import tushare as ts
+from joblib import Parallel, delayed
+from tqdm import tqdm
+
+
 def createDir(id2name, outputPath):
     # create the directories 
     # outputPath: "stockNews/"
@@ -63,10 +68,6 @@ outputPath = dataPath + '/stockNews'
 mappingPath = dataPath + '/stockid2name.csv'
 
 
-import tushare as ts
-import numpy as np
-from tqdm import tqdm
-import datetime
 ts.set_token('3f545dd41ef95e7da766a941dc16c58761da22450f6b70ebdff858a8')
 pro = ts.pro_api()
 # data = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name')

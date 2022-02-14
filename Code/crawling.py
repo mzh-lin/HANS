@@ -1,7 +1,12 @@
 # !pip install tushare
 # !pip install tqdm
-import os
 import datetime
+import numpy as np
+import os
+import tushare as ts
+from tqdm import tqdm
+from tqdm import tqdm
+
 
 def get_nday_list(n):
     before_n_days = []
@@ -14,9 +19,6 @@ def get_nday_list(n):
 date_list = get_nday_list("20190110")
 print(date_list)
 
-import tushare as ts
-import numpy as np
-from tqdm import tqdm
 ts.set_token('3f545dd41ef95e7da766a941dc16c58761da22450f6b70ebdff858a8')
 pro = ts.pro_api()
 if not os.path.exists("stockDataFromTushare"):
@@ -69,9 +71,6 @@ import time
 #         else:
 #             break
 
-import tushare as ts
-import numpy as np
-from tqdm import tqdm
 ts.set_token('3f545dd41ef95e7da766a941dc16c58761da22450f6b70ebdff858a8')
 pro = ts.pro_api()
 data = pro.stock_basic(exchange='', list_status='L', fields='ts_code')
